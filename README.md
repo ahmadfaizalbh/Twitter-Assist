@@ -1,9 +1,5 @@
-<<<<<<< HEAD
 # Prerequisites
 ## Replace: 
-=======
-### Replace: 
->>>>>>> 2afbe939fe3a190fdd1cdf195ddc4d100b3415b9
 *    Access Token key and secret by the users Access Token key and secret
 *    Consumer key and secret by the app's consumer key and secret
 
@@ -12,7 +8,6 @@
 >    TweetOuth=Tweetoauth('Access Token key','Access Token Secret','consumer key', 'consumer secret')
     
 ## Instruction to Execute:
-<<<<<<< HEAD
 >    Make sure that you are not under any proxy server and also make sure that internet access is available.
 
 # To execute tweetFollow.py
@@ -42,38 +37,11 @@
 
 
 # To execute search.py 
-=======
-    Make sure that you are not under any proxy server and also make sure that internet access is available.
-
-# To execute tweetFollow.py
-
-### Usage:
->    in command prompt navigte to directory containing tweetFollow.py(this directory)
-    python tweetFollow.py <username>
-
-### Result:
-    Strores details of all followers and following of specified users in file named  <username>__follow.log
-
-# To execute bmtu.py
-
-### Usage:
->    in command prompt navigte to directory containing bmtu.py(this directory) 
-    python bmtu.py  <operation> <username>
-
-### Operations:
-
-*   init: Create an initial <username>.db file.
-*   fetch: Fill in missing tweets for <username>.db
-
-### Result:
-    Strores the tweets in username.db database
->>>>>>> 2afbe939fe3a190fdd1cdf195ddc4d100b3415b9
 
 ## Usage:
 >    in command prompt navigte to directory containing search.py(this directory) 
     python search.py  <operation> <Search Element>
 
-<<<<<<< HEAD
 ### Operations:
 *   init: Create an initial <Search Element>.db file.
 *   fetch: Fill in missing tweets for <Search Element>.db
@@ -91,21 +59,3 @@
 ## Result:
 >    Stores result in DB
 
-=======
-# To execute search.py 
-
-## Usage:
->    in command prompt navigte to directory containing search.py(this directory) 
-
-### To create DB file
-    python search.py  init <Search Element>
-
-### To fetch into DB
-    python search.py  fetch <Search Element>
-
-#### Search Eliment:
-*   Searches for Search elements in Twitter
-
-## Result:
->    Stores result in DB
->>>>>>> 2afbe939fe3a190fdd1cdf195ddc4d100b3415b9
