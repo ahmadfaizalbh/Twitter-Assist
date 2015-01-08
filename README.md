@@ -16,15 +16,14 @@
     python tweetFollow.py <username>
 ### Username
 *	Twitter Username 
+
 ## Result:
     Strores details of all followers and following of specified users in file named  <username>__follow.log
 
 # To execute bmtu.py
-
 ## Usage:
 >    in command prompt navigte to directory containing bmtu.py(this directory) 
     python bmtu.py  <operation> <username>
-
 ### Operations:
 *   init: Create an initial <username>.db file.
 *   fetch: Fill in missing tweets for <username>.db
@@ -37,11 +36,9 @@
 
 
 # To execute search.py 
-
 ## Usage:
 >    in command prompt navigte to directory containing search.py(this directory) 
     python search.py  <operation> <Search Element>
-
 ### Operations:
 *   init: Create an initial <Search Element>.db file.
 *   fetch: Fill in missing tweets for <Search Element>.db
