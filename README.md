@@ -49,7 +49,7 @@
 ### Search Eliment:
 *   Searches for Search elements in Twitter
 
-##Example:
+##	Example:
 >	To srearch "Cloud Computing"
 ### To create DB file
     python search.py  init "Cloud Computing"
