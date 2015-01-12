@@ -62,7 +62,7 @@ def load_tweets(**kwargs):
             twit[u'user'][u'screen_name'],
             twit[u'user'][u'description']))
     c.commit()
-    return len(tweets)
+    return len(tweets[u'statuses'])
 
 def print_help(args):
     print >>sys.stderr, '''
@@ -74,7 +74,7 @@ Operations:
 
     * init: Create an initial <search element>.db file.
     * fetch: Fill in missing tweets for <search element>.db
-
+	* loopfetch: Is a fech operation repeates every hour. 
 example:
 To search 'Cloud computing' and store in 'Cloud computing.db'
 To create new DB file
@@ -95,7 +95,7 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
             sys.exit(-1)
-    elif args[1] == 'fetch':
+    elif args[1] == 'fetch' or args[1] == 'loopfetch':
         Search_key = args[2]
         for i in args[3:]:
             Search_key += ' ' + i
@@ -106,6 +106,12 @@ def main(*args):
             sys.exit(-2)
         try:
             fetch()
+            if args[1] == 'loopfetch':
+            	print >>sys.stderr, "All tweets till this time is retrived." 
+            	print >>sys.stderr, "Waiting for 1 hour..."
+            	time.sleep(3600)
+            	print >>sys.stderr, "Resuming process.."
+            	fetch()
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
             print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
