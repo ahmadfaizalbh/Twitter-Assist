@@ -100,7 +100,7 @@ def main(*args):
             sys.exit(-1)
     elif args[1] == 'fetch' or args[1] == 'loopfetch':
         Search_key = args[2]
-		loopfetch=(args[1] == 'loopfetch')
+        loopfetch=(args[1] == 'loopfetch')
         for i in args[3:]:
             Search_key += ' ' + i
         try:
