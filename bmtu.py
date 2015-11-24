@@ -45,16 +45,8 @@ def load_tweets(**kwargs):
     url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?' + urlencode(args)
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
-    while type(tweets) == dict and tweets.has_key(u'errors'):
-        if type(tweets[u'errors']) == list and tweets[u'errors'] and type(tweets[u'errors'][0]) == dict and tweets[u'errors'][0][u'code']==88:
-        	print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, tweets[u'errors'][0][u'message'])
-        	print >>sys.stderr, "Waiting for 15 minutes..." 
-        	time.sleep(900)
-        	print >>sys.stderr, "Resuming process.."
-        	user_timeline = TweetOuth.tweet_req(url)
-        	tweets=json.loads(user_timeline)
-        else:
-        	raise Exception(tweets[u'errors'])
+    if type(tweets) == dict and tweets.has_key(u'errors'):
+        raise Exception(tweets[u'errors'])
     for twit in tweets:
         c.execute('INSERT INTO tweet (tweet_id, created, text, source) VALUES (?, ?, ?, ?)',
             (twit['id'],

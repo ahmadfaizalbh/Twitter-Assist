@@ -9,8 +9,7 @@ from tweetconnect import *
 from auth_and_Secret import TweetOuth
 c = None
 Search_key = None
-loopfetch = None
-
+    
 def fetch():
     going_up = True
     while going_up:
@@ -24,7 +23,8 @@ def fetch():
         else:
             print >>sys.stderr, 'Requesting tweets newer than %lu' % results[0]
             tweet_count = load_tweets(since_id=results[0])
-        going_up = bool(tweet_count)
+        if not tweet_count:
+            going_up = False
     going_down = True
     while going_down:
         cu = c.cursor()
@@ -33,9 +33,8 @@ def fetch():
         print >>sys.stderr, 'Requesting tweets older than %lu' % results[0]
         tweet_count = load_tweets(max_id=(results[0]-1))
         # The -1 is lame, but max_id is "<=" not just "<"
-        going_down = (tweet_count>0)
-    if loopfetch and tweet_count==-1:      
-        fetch()
+        if not tweet_count:
+            going_down = False
 
 def load_tweets(**kwargs):
     args = dict(count=20, q=Search_key)
@@ -43,18 +42,8 @@ def load_tweets(**kwargs):
     url = 'https://api.twitter.com/1.1/search/tweets.json?' + urlencode(args)
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
-    while type(tweets) == dict and tweets.has_key(u'errors'):
-        if type(tweets[u'errors']) == list and tweets[u'errors'] and type(tweets[u'errors'][0]) == dict and tweets[u'errors'][0][u'code']==88:
-        	print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, tweets[u'errors'][0][u'message'])
-        	print >>sys.stderr, "Waiting for 15 minutes..." 
-        	time.sleep(900)
-        	print >>sys.stderr, "Resuming process.."
-        	if loopfetch:
-        		return -1
-        	user_timeline = TweetOuth.tweet_req(url)
-        	tweets=json.loads(user_timeline)
-        else:
-        	raise Exception(tweets[u'errors'])
+    if type(tweets) == dict and tweets.has_key(u'errors'):
+        raise Exception(tweets[u'errors'])
     for twit in tweets[u'statuses']:
         c.execute('INSERT INTO tweet (user, tweet_id, created, text, source, screan_name, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (twit[u'user'][u'name'],
@@ -65,7 +54,7 @@ def load_tweets(**kwargs):
             twit[u'user'][u'screen_name'],
             twit[u'user'][u'description']))
     c.commit()
-    return len(tweets[u'statuses']) 
+    return len(tweets)
 
 def print_help(args):
     print >>sys.stderr, '''
@@ -77,7 +66,7 @@ Operations:
 
     * init: Create an initial <search element>.db file.
     * fetch: Fill in missing tweets for <search element>.db
-	* loopfetch: Is a fech operation repeates every hour. 
+
 example:
 To search 'Cloud computing' and store in 'Cloud computing.db'
 To create new DB file
@@ -87,7 +76,7 @@ and then
 ''' % (args[0],args[0],args[0])
 
 def main(*args):
-    global c, Search_key,loopfetch
+    global c, Search_key
     if len(args) < 3:
         print_help(args)
     elif args[1] == 'init':
@@ -98,9 +87,8 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
             sys.exit(-1)
-    elif args[1] == 'fetch' or args[1] == 'loopfetch':
+    elif args[1] == 'fetch':
         Search_key = args[2]
-        loopfetch=(args[1] == 'loopfetch')
         for i in args[3:]:
             Search_key += ' ' + i
         try:
@@ -108,20 +96,12 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem opening your database: %s" % str(e)
             sys.exit(-2)
-        while True:
-            try:
-            	fetch()
-            	if not loopfetch:
-            		return
-            	print >>sys.stderr, "All tweets till this time is retrived." 
-            except Exception, e:
-            	print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
-            	print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
-            	if not loopfetch:
-            		sys.exit(-3)
-            print >>sys.stderr, "Waiting for 1 hour..."
-            time.sleep(3600)
-            print >>sys.stderr, "Resuming process.."
+        try:
+            fetch()
+        except Exception, e:
+            print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
+            print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
+            sys.exit(-3)
     else:
         print_help(args)
 
