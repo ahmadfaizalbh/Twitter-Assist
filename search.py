@@ -9,6 +9,7 @@ from tweetconnect import *
 from auth_and_Secret import TweetOuth
 c = None
 Search_key = None
+repeat = False
     
 def fetch():
     going_up = True
@@ -43,6 +44,10 @@ def load_tweets(**kwargs):
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
     if type(tweets) == dict and tweets.has_key(u'errors'):
+        if repeat and tweets[u'errors'][0]["code"]==88:
+            print >>sys.stderr,tweets[u'errors'][0]["message"]
+            time.sleep(1000)
+            return load_tweets(**kwargs)
         raise Exception(tweets[u'errors'])
     for twit in tweets[u'statuses']:
         c.execute('INSERT INTO tweet (user, tweet_id, created, text, source, screan_name, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -66,6 +71,8 @@ Operations:
 
     * init: Create an initial <search element>.db file.
     * fetch: Fill in missing tweets for <search element>.db
+    * fetchAll: Fill in all tweets till that time tweets for <search element>.db 
+    * fetchRecursive: Fill in missing tweets for <search element>.db repeact every 15 minutes
 
 example:
 To search 'Cloud computing' and store in 'Cloud computing.db'
@@ -76,7 +83,7 @@ and then
 ''' % (args[0],args[0],args[0])
 
 def main(*args):
-    global c, Search_key
+    global c, Search_key,repeat
     if len(args) < 3:
         print_help(args)
     elif args[1] == 'init':
@@ -87,7 +94,7 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
             sys.exit(-1)
-    elif args[1] == 'fetch':
+    elif args[1] in ('fetch','fetchAll','fetchRecursive'):
         Search_key = args[2]
         for i in args[3:]:
             Search_key += ' ' + i
@@ -96,12 +103,19 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem opening your database: %s" % str(e)
             sys.exit(-2)
-        try:
-            fetch()
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
-            print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
-            sys.exit(-3)
+        if args[1] == 'fetchRecursive':
+          while True:
+            try:fetch()
+            except (KeyboardInterrupt, SystemExit):sys.exit(0)
+            except:time.sleep(1000)
+        else:
+          if args[1] == 'fetchAll':repeat=True  
+          try:
+              fetch()
+          except Exception, e:
+              print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
+              print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
+              sys.exit(-3)
     else:
         print_help(args)
 

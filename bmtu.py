@@ -10,7 +10,7 @@ from auth_and_Secret import TweetOuth
 
 c = None
 screen_name = None
-
+repeat = False
 
     
 def fetch():
@@ -46,6 +46,10 @@ def load_tweets(**kwargs):
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
     if type(tweets) == dict and tweets.has_key(u'errors'):
+        if repeat and tweets[u'errors'][0]["code"]==88:
+            print >>sys.stderr,tweets[u'errors'][0]["message"]
+            time.sleep(1000) 
+            return load_tweets(**kwargs)
         raise Exception(tweets[u'errors'])
     for twit in tweets:
         c.execute('INSERT INTO tweet (tweet_id, created, text, source) VALUES (?, ?, ?, ?)',
@@ -66,6 +70,8 @@ Operations:
 
     * init: Create an initial <username>.db file.
     * fetch: Fill in missing tweets for <username>.db
+    * fetchAll: Fill in all tweets till that time tweets for <username>.db 
+    * fetchRecursive: Fill in missing tweets for <username>.db repeact every 15 minutes
 ''' % args[0]
 
 def main(*args):
@@ -80,19 +86,26 @@ def main(*args):
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
             sys.exit(-1)
-    elif args[1] == 'fetch':
+    elif args[1] in ('fetch','fetchAll','fetchRecursive'):
         screen_name = args[2]
         try:
             c = connect('%s.db' % screen_name)
         except Exception, e:
             print >>sys.stderr, "Error: There was a problem opening your database: %s" % str(e)
             sys.exit(-2)
-        try:
-            fetch()
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (screen_name, str(e))
-            print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
-            sys.exit(-3)
+        if args[1] == 'fetchRecursive':
+          while True:
+            try:fetch()
+            except (KeyboardInterrupt, SystemExit):sys.exit(0)
+            except:time.sleep(1000)
+        else:
+          if args[1] == 'fetchAll':repeat=True  
+          try:
+              fetch()
+          except Exception, e:
+              print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
+              print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
+              sys.exit(-3)
     else:
         print_help(args)
 
