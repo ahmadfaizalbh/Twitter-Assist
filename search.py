@@ -10,7 +10,13 @@ from auth_and_Secret import TweetOuth
 c = None
 Search_key = None
 repeat = False
-    
+
+class InvalidTokenError(ValueError):
+    __module__ = None
+    def __init__(self,*args,**kwargs):
+        ValueError.__init__(self,*args,**kwargs)
+
+   
 def fetch():
     going_up = True
     while going_up:
@@ -48,7 +54,11 @@ def load_tweets(**kwargs):
             print >>sys.stderr,tweets[u'errors'][0]["message"]
             time.sleep(1000)
             return load_tweets(**kwargs)
-        raise Exception(tweets[u'errors'])
+        if tweets[u'errors'][0]["code"] in (32,89,99):
+            raise InvalidTokenError(tweets[u'errors'][0]['message'])
+        if tweets[u'errors'][0]["code"]==88:
+            raise OverflowError(tweets[u'errors'][0]['message'])
+        raise Exception(tweets[u'errors'][0]['message'])
     for twit in tweets[u'statuses']:
         c.execute('INSERT INTO tweet (user, tweet_id, created, text, source, screan_name, description) VALUES (?, ?, ?, ?, ?, ?, ?)',
             (twit[u'user'][u'name'],
@@ -59,7 +69,7 @@ def load_tweets(**kwargs):
             twit[u'user'][u'screen_name'],
             twit[u'user'][u'description']))
     c.commit()
-    return len(tweets)
+    return len(tweets[u'statuses'])
 
 def print_help(args):
     print >>sys.stderr, '''
@@ -105,9 +115,14 @@ def main(*args):
             sys.exit(-2)
         if args[1] == 'fetchRecursive':
           while True:
-            try:fetch()
+            try:
+                fetch()
+                print >>sys.stderr, 'No more tweets found, Sleep 3 minutes'
+                time.sleep(180)
             except (KeyboardInterrupt, SystemExit):sys.exit(0)
-            except:time.sleep(1000)
+            except OverflowError:
+                print >>sys.stderr, 'Rate limit exceeded, Sleep 16 minutes'
+                time.sleep(1000)
         else:
           if args[1] == 'fetchAll':repeat=True  
           try:
