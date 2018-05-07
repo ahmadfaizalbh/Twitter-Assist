@@ -1,12 +1,22 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import sys
-import rfc822
+try:
+   import rfc822
+except ImportError as e:
+   import rfc822py3 as rfc822
 import time
 import json
 from sqlite3 import connect
-from urllib import urlopen, urlencode
+try:
+    from urllib import urlopen, urlencode
+except ImportError as e:
+    from urllib.request import urlopen
+    from urllib.parse import urlencode
 from tweetconnect import *
 from auth_and_Secret import TweetOuth
+
 c = None
 Screan_name = None
 Slug = None
@@ -20,10 +30,10 @@ def fetch():
         results = cu.fetchone()
         tweet_count = None
         if not results[0]:
-            print >>sys.stderr, 'No existing tweets found: requesting default timeline.'
+            print('No existing tweets found: requesting default timeline.',file=sys.stderr)
             tweet_count = load_tweets()
         else:
-            print >>sys.stderr, 'Requesting tweets newer than %lu' % results[0]
+            print('Requesting tweets newer than %lu' % results[0],file=sys.stderr)
             tweet_count = load_tweets(since_id=results[0])
         if not tweet_count:
             going_up = False
@@ -32,7 +42,7 @@ def fetch():
         cu = c.cursor()
         cu.execute('SELECT MIN(tweet_id) min_id FROM `%s`' % Slug)
         results = cu.fetchone()
-        print >>sys.stderr, 'Requesting tweets older than %lu' % results[0]
+        print('Requesting tweets older than %lu' % results[0],file=sys.stderr)
         tweet_count = load_tweets(max_id=(results[0]-1))
         # The -1 is lame, but max_id is "<=" not just "<"
         if not tweet_count:
@@ -44,7 +54,7 @@ def load_tweets(**kwargs):
     url = 'https://api.twitter.com/1.1/lists/statuses.json?' + urlencode(args)
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
-    if type(tweets) == dict and tweets.has_key(u'errors'):
+    if type(tweets) == dict and u'errors' in tweets:
         raise Exception(tweets[u'errors'])
     for twit in tweets:
         c.execute('INSERT INTO `%s` (user, tweet_id, created, text, source, screan_name, description) VALUES (?, ?, ?, ?, ?, ?, ?)' % Slug,
@@ -59,7 +69,7 @@ def load_tweets(**kwargs):
     return len(tweets)
 
 def print_help(args):
-    print >>sys.stderr, '''
+    print('''
 Usage:
 
     %s <operation> <owner screen name> <slug name>
@@ -75,7 +85,7 @@ To create new DB file
 %s init dorait text-and-data
 and then
 %s fetch dorait text-and-data
-''' % (args[0],args[0],args[0])
+''' % (args[0],args[0],args[0]),file=sys.stderr)
 
 def main(*args):
     global c, Screan_name, Slug
@@ -88,8 +98,8 @@ def main(*args):
             c = connect('%s.db' % Screan_name)
             c.execute('CREATE TABLE `%s` (tweet_id INTEGER PRIMARY KEY NOT NULL,user TEXT NOT NULL,screan_name TEXT NOT NULL, description TEXT NOT NULL,\
 created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)' % Slug)
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
+        except Exception as e:
+            print("Error: There was a problem creating your database: %s" % str(e),file=sys.stderr)
             sys.exit(-1)
     elif args[1] == 'fetch':
         Screan_name = args[2]
@@ -97,14 +107,14 @@ created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)' % Slug)
         print Slug
         try:
             c = connect('%s.db' % Screan_name)
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem opening your database: %s" % str(e)
+        except Exception as e:
+            print("Error: There was a problem opening your database: %s" % str(e),file=sys.stderr)
             sys.exit(-2)
         try:
             fetch()
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem retrieving %s's '%s' list: %s" % (Screan_name,Slug, str(e))
-            print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
+        except Exception as e:
+            print("Error: There was a problem retrieving %s's '%s' list: %s" % (Screan_name,Slug, str(e)),file=sys.stderr)
+            print("Error: This may be a temporary failure, wait a bit and try again.",file=sys.stderr)
             sys.exit(-3)
     else:
         print_help(args)

@@ -15,7 +15,7 @@ class Tweetoauth():
 
         
 
-    def tweet_req(self,url, http_method="GET", post_body="", http_headers=""):
+    def tweet_req(self,url, http_method="GET", post_body=b"", http_headers=b""):
         consumer = oauth.Consumer(key=self.consumer.key,secret=self.consumer.secret)#change your 'Consumer key' and 'Consumer secret' with your apps 'Consumer key' and 'Consumer secret'
         token = oauth.Token(key=self.AccessToken.key, secret=self.AccessToken.secret)
         client = oauth.Client(consumer, token)

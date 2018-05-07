@@ -1,15 +1,23 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import sys
-import rfc822
+try:
+   import rfc822
+except ImportError as e:
+   import rfc822py3 as rfc822
 import time
 import json
 from sqlite3 import connect
-from urllib import urlopen, urlencode, quote_plus 
+
+
+try:
+    from urllib import urlopen, urlencode, quote_plus 
+except ImportError as e:
+    from urllib.request import urlopen
+    from urllib.parse import urlencode, quote_plus 
 from tweetconnect import *
 from auth_and_Secret import TweetOuth
-
-
 def urlencode_utf8(params):
     if hasattr(params, 'items'):
         params = params.items()
@@ -22,10 +30,10 @@ FollowersList=[]
 FollowingList=[]
 screen_name=None
 def print_help(args):
-    print >>sys.stderr, '''
+    print('''
 Usage:
     %s <Screen_name> 
-''' % args[0]
+''' % args[0],file=sys.stderr)
 def tweet_friends():
     global FollowingList,screen_name
     follow=TweetOuth.tweet_req('https://api.twitter.com/1.1/friends/ids.json?'+urlencode_utf8({'cursor':-1,'screen_name':screen_name,'count':5000}))
@@ -69,7 +77,7 @@ def tweet_follower():
 
 def Log_File_genrator(fileName):
     global FollowingList,FollowersList,screen_name
-    print 'Writing to file: '+fileName
+    print('Writing to file: '+fileName)
     text_file = open(fileName, "w")
     max_name_len=max([len(i[1]) for i in FollowingList]+[len(i[1]) for i in FollowersList]+[16])+1
     max_sname_len=max([len(i[2]) for i in FollowingList]+[len(i[2]) for i in FollowersList]+[13])+1
@@ -88,7 +96,7 @@ def Log_File_genrator(fileName):
     for i in FollowersList: 
         text_file.write(i[0].ljust(18)+i[1].ljust(max_name_len).encode( sys.getfilesystemencoding())+i[2].ljust(max_sname_len).encode( sys.getfilesystemencoding())+i[3].rjust(10)+i[4].rjust(10)+'\r\n')
     text_file.close()
-    print 'Sucsess'
+    print('Sucsess')
     #return search_result
         
 def main(*args):

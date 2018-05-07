@@ -1,12 +1,22 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import sys
-import rfc822
+try:
+   import rfc822
+except ImportError as e:
+   import rfc822py3 as rfc822
 import time
 import json
 from sqlite3 import connect
-from urllib import urlopen, urlencode
+try:
+    from urllib import urlopen, urlencode
+except ImportError as e:
+    from urllib.request import urlopen
+    from urllib.parse import urlencode
 from tweetconnect import *
 from auth_and_Secret import TweetOuth
+
 c = None
 Search_key = None
 repeat = False
@@ -25,10 +35,10 @@ def fetch():
         results = cu.fetchone()
         tweet_count = None
         if not results[0]:
-            print >>sys.stderr, 'No existing tweets found: requesting default timeline.'
+            print('No existing tweets found: requesting default timeline.',file=sys.stderr)
             tweet_count = load_tweets()
         else:
-            print >>sys.stderr, 'Requesting tweets newer than %lu' % results[0]
+            print('Requesting tweets newer than %lu' % results[0],file=sys.stderr)
             tweet_count = load_tweets(since_id=results[0])
         if not tweet_count:
             going_up = False
@@ -37,7 +47,7 @@ def fetch():
         cu = c.cursor()
         cu.execute('SELECT MIN(tweet_id) min_id FROM tweet')
         results = cu.fetchone()
-        print >>sys.stderr, 'Requesting tweets older than %lu' % results[0]
+        print('Requesting tweets older than %lu' % results[0],file=sys.stderr)
         tweet_count = load_tweets(max_id=(results[0]-1))
         # The -1 is lame, but max_id is "<=" not just "<"
         if not tweet_count:
@@ -49,9 +59,9 @@ def load_tweets(**kwargs):
     url = 'https://api.twitter.com/1.1/search/tweets.json?' + urlencode(args)
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline)
-    if type(tweets) == dict and tweets.has_key(u'errors'):
+    if type(tweets) == dict and u'errors' in tweets:
         if repeat and tweets[u'errors'][0]["code"]==88:
-            print >>sys.stderr,tweets[u'errors'][0]["message"]
+            print(tweets[u'errors'][0]["message"],file=sys.stderr)
             time.sleep(1000)
             return load_tweets(**kwargs)
         if tweets[u'errors'][0]["code"] in (32,89,99):
@@ -72,7 +82,7 @@ def load_tweets(**kwargs):
     return len(tweets[u'statuses'])
 
 def print_help(args):
-    print >>sys.stderr, '''
+    print('''
 Usage:
 
     %s <operation> <search element>
@@ -85,12 +95,12 @@ Operations:
     * fetchRecursive: Fill in missing tweets for <search element>.db repeact every 15 minutes
 
 example:
-To search 'Cloud computing' and store in 'Cloud computing.db'
-To create new DB file
-%s init Cloud_computing
-and then
-%s fetch Cloud computing
-''' % (args[0],args[0],args[0])
+    To search 'Cloud computing' and store in 'Cloud computing.db'
+    To create new DB file
+    %s init Cloud_computing
+    and then
+    %s fetch Cloud computing
+''' % (args[0],args[0],args[0]),file=sys.stderr)
 
 def main(*args):
     global c, Search_key,repeat
@@ -101,8 +111,8 @@ def main(*args):
         try:
             c = connect('%s.db' % Search_key)
             c.execute('CREATE TABLE tweet (tweet_id INTEGER PRIMARY KEY NOT NULL,user TEXT NOT NULL,screan_name TEXT NOT NULL, description TEXT NOT NULL, created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)')
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem creating your database: %s" % str(e)
+        except Exception as e:
+            print("Error: There was a problem creating your database: %s" % str(e),file=sys.stderr)
             sys.exit(-1)
     elif args[1] in ('fetch','fetchAll','fetchRecursive'):
         Search_key = args[2]
@@ -110,26 +120,26 @@ def main(*args):
             Search_key += ' ' + i
         try:
             c = connect('%s.db' % Search_key)
-        except Exception, e:
-            print >>sys.stderr, "Error: There was a problem opening your database: %s" % str(e)
+        except Exception as e:
+            print("Error: There was a problem opening your database: %s" % str(e),file=sys.stderr)
             sys.exit(-2)
         if args[1] == 'fetchRecursive':
           while True:
             try:
                 fetch()
-                print >>sys.stderr, 'No more tweets found, Sleep 3 minutes'
+                print('No more tweets found, Sleep 3 minutes',file=sys.stderr)
                 time.sleep(180)
-            except (KeyboardInterrupt, SystemExit):sys.exit(0)
-            except OverflowError:
-                print >>sys.stderr, 'Rate limit exceeded, Sleep 16 minutes'
+            except (KeyboardInterrupt, SystemExit) as e:sys.exit(0)
+            except OverflowError as e:
+                print('Rate limit exceeded, Sleep 16 minutes',file=sys.stderr)
                 time.sleep(1000)
         else:
           if args[1] == 'fetchAll':repeat=True  
           try:
               fetch()
-          except Exception, e:
-              print >>sys.stderr, "Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e))
-              print >>sys.stderr, "Error: This may be a temporary failure, wait a bit and try again."
+          except Exception as e:
+              print("Error: There was a problem retrieving %s's timeline: %s" % (Search_key, str(e)),file=sys.stderr)
+              print("Error: This may be a temporary failure, wait a bit and try again.",file=sys.stderr)
               sys.exit(-3)
     else:
         print_help(args)
