@@ -60,7 +60,7 @@ def load_tweets(**kwargs):
     url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?' + urlencode(args)
     user_timeline = TweetOuth.tweet_req(url) 
     tweets=json.loads(user_timeline.decode('utf-8'))
-    if type(tweets) == dict and tweets.has_key(u'errors'):
+    if type(tweets) == dict and 'errors' in tweets:
         if repeat and tweets[u'errors'][0]["code"]==88:
             print (tweets[u'errors'][0]["message"],file=sys.stderr)
             time.sleep(1000) 
