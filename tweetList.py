@@ -104,7 +104,6 @@ created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)' % Slug)
     elif args[1] == 'fetch':
         Screan_name = args[2]
         Slug = args[3]
-        print Slug
         try:
             c = connect('%s.db' % Screan_name)
         except Exception as e:
