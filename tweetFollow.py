@@ -37,7 +37,7 @@ Usage:
 def tweet_friends():
     global FollowingList,screen_name
     follow=TweetOuth.tweet_req('https://api.twitter.com/1.1/friends/ids.json?'+urlencode_utf8({'cursor':-1,'screen_name':screen_name,'count':5000}))
-    result=json.loads(follow)
+    result=json.loads(follow.decode('utf-8'))
     follow_ids=result[u'ids']
     while result[u'next_cursor']:
         follow=TweetOuth.tweet_req('https://api.twitter.com/1.1/friends/ids.json?'+urlencode_utf8({'cursor':result[u'next_cursor'],'screen_name':screen_name,'count':5000}))

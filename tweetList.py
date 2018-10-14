@@ -52,8 +52,8 @@ def load_tweets(**kwargs):
     args = dict(count=20, slug=Slug,owner_screen_name=Screan_name)
     args.update(**kwargs)
     url = 'https://api.twitter.com/1.1/lists/statuses.json?' + urlencode(args)
-    user_timeline = TweetOuth.tweet_req(url) 
-    tweets=json.loads(user_timeline)
+    user_timeline = TweetOuth.tweet_req(url)
+    tweets=json.loads(user_timeline.decode('utf-8'))
     if type(tweets) == dict and u'errors' in tweets:
         raise Exception(tweets[u'errors'])
     for twit in tweets:
