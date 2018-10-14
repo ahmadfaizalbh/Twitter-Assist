@@ -99,7 +99,7 @@ example:
     and then
     %s fetch google
 
-''' % args[0],file=sys.stderr)
+''' % (args[0],args[0],args[0]),file=sys.stderr)
 
 def main(*args):
     global c, screen_name
