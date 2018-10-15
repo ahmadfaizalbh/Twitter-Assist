@@ -66,11 +66,11 @@
 >
        python tweetList.py <operation> <owner username> <slug name>
 >>### Operations:
->>* init: Create an initial &lt;owner username&gt;.db file.
->>* fetch: Fill in missing tweets for &lt;owner username&gt;.db
+>>* init: Create an initial &lt;owner username&gt;_&lt;slug name&gt;.db file.
+>>* fetch: Fill in missing tweets for &lt;owner username&gt;_&lt;slug name&gt;.db
 >
 >## Example:
->> To get 'Top tech Jobs' list's tweet and store in 'ahmadfaizalbh.db'
+>> To get 'Top tech Jobs' list's tweet and store in 'ahmadfaizalbh_top-tech-jobs.db'
 >>### To create new DB file
 >>>
     python tweetList.py init ahmadfaizalbh top-tech-jobs
