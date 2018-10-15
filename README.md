@@ -74,7 +74,6 @@
 >>### To create new DB file
 >>>
     python tweetList.py init ahmadfaizalbh top-tech-jobs
-and then
 >>### To fetch into DB
 >>>
     python tweetList.py fetch ahmadfaizalbh top-tech-jobs
