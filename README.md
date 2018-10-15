@@ -18,7 +18,7 @@
 >>*	Twitter Username 
 >
 >## Result:
->>    Strores details of all followers and following of specified users in file named  <username>__follow.log
+>>    Strores details of all followers and following of specified users in file named  &lt;username&gt;__follow.log
 
 # To execute bmtu.py
 >## Usage:
@@ -26,14 +26,14 @@
 >
         python bmtu.py  <operation> <username>
 >>### Operations:
->>*   init: Create an initial <username>.db file.
->>*   fetch: Fill in missing tweets for <username>.db
+>>*   init: Create an initial &lt;username&gt;.db file.
+>>*   fetch: Fill in missing tweets for &lt;username&gt;.db
 >
 >>### Username
 >>*	Twitter Username 
 >
 >## Result:
->>    Strores the tweets in username.db database
+>>    Strores the tweets in &lt;username&gt;.db database
 
 
 # To execute search.py 
@@ -42,8 +42,8 @@
 >
         python search.py  <operation> <Search Element>
 >>### Operations:
->>*   init: Create an initial <Search Element>.db file.
->>*   fetch: Fill in missing tweets for <Search Element>.db
+>>*   init: Create an initial &lt;Search Element&gt;.db file.
+>>*   fetch: Fill in missing tweets for &lt;Search Element&gt;.db
 >
 >>### Search Eliment:
 >>*   Searches for Search elements in Twitter
@@ -55,5 +55,24 @@
 >>### To fetch into DB
 >>>    python search.py  fetch "Cloud Computing"
 >
+>## Result:
+>>    Stores result in DB
+
+# To execute tweetList.py 
+>## Usage:
+>>    in command prompt navigte to directory containing tweetList.py(this directory) 
+>
+       python tweetList.py <operation> <owner username> <slug name>
+>>### Operations:
+>>* init: Create an initial &lt;owner username&gt;.db file.
+>>* fetch: Fill in missing tweets for &lt;owner username&gt;.db
+>
+>## Example:
+>> To get 'Top tech Jobs' list's tweet and store in 'ahmadfaizalbh.db'
+>>### To create new DB file
+>>>    python tweetList.py init ahmadfaizalbh top-tech-jobs
+and then
+>>### To fetch into DB
+>>>    python tweetList.py fetch ahmadfaizalbh top-tech-jobs
 >## Result:
 >>    Stores result in DB
