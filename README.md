@@ -51,9 +51,11 @@
 >##	Example:
 >>	To srearch "Cloud Computing"
 >>### To create DB file
->>>    python search.py  init "Cloud Computing"
+>>>
+    python search.py  init "Cloud Computing"
 >>### To fetch into DB
->>>    python search.py  fetch "Cloud Computing"
+>>>
+    python search.py  fetch "Cloud Computing"
 >
 >## Result:
 >>    Stores result in DB
@@ -70,9 +72,11 @@
 >## Example:
 >> To get 'Top tech Jobs' list's tweet and store in 'ahmadfaizalbh.db'
 >>### To create new DB file
->>>    python tweetList.py init ahmadfaizalbh top-tech-jobs
+>>>
+    python tweetList.py init ahmadfaizalbh top-tech-jobs
 and then
 >>### To fetch into DB
->>>    python tweetList.py fetch ahmadfaizalbh top-tech-jobs
+>>>
+    python tweetList.py fetch ahmadfaizalbh top-tech-jobs
 >## Result:
 >>    Stores result in DB
