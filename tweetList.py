@@ -76,15 +76,15 @@ Usage:
 
 Operations:
 
-    * init: Create an initial <owner screen name>.db file.
-    * fetch: Fill in missing tweets for <owner screen name>.db
+    * init: Create an initial <owner screen name>_<slug name>.db file.
+    * fetch: Fill in missing tweets for <owner screen name>_<slug name>.db
 
-example:
-To get 'text and data' list's tweet and store in 'dorait.db'
+Example:
+To get 'Top tech Jobs' list's tweet and store in 'ahmadfaizalbh_top-tech-jobs.db'
 To create new DB file
-%s init dorait text-and-data
+%s init ahmadfaizalbh top-tech-jobs.db
 and then
-%s fetch dorait text-and-data
+%s fetch ahmadfaizalbh top-tech-jobs.db
 ''' % (args[0],args[0],args[0]),file=sys.stderr)
 
 def main(*args):
@@ -95,7 +95,7 @@ def main(*args):
         Screan_name = args[2]
         Slug = args[3]
         try:
-            c = connect('%s.db' % Screan_name)
+            c = connect('%s_%s.db' % (Screan_name,Slug))
             c.execute('CREATE TABLE `%s` (tweet_id INTEGER PRIMARY KEY NOT NULL,user TEXT NOT NULL,screan_name TEXT NOT NULL, description TEXT NOT NULL,\
 created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)' % Slug)
         except Exception as e:
@@ -105,7 +105,7 @@ created INTEGER NOT NULL, text TEXT NOT NULL, source TEXT)' % Slug)
         Screan_name = args[2]
         Slug = args[3]
         try:
-            c = connect('%s.db' % Screan_name)
+            c = connect('%s_%s.db' % (Screan_name,Slug))
         except Exception as e:
             print("Error: There was a problem opening your database: %s" % str(e),file=sys.stderr)
             sys.exit(-2)
